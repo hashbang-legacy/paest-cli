@@ -1,0 +1,60 @@
+function paest() {
+  local paest_p=""
+  local paest_k=""
+
+  # Parse args
+  while getopts ":h?up:k:" opt; do
+    case "$opt" in
+    h|\?)
+        echo "paest [-u] [-p paest_id] [-k paest_key] [file]"
+        echo "  -u            update the last paest (same as using -p and -k from the last paest call)"
+        echo "  -p paest_id   request the provided paest id (default: server provided id)"
+        echo "  -k paest_key  use the provided key for paesting, required for updating or deleting"
+        echo "  file          optional file to paest, defaults to reading stdin"
+        echo ""
+        echo "something | paest     Store output of something in a new paest each time"
+        echo "paest file            Upload a file"
+        echo "something | paest -u  Some output of something, overwriting each time"
+        echo "paest -p MyFile file  Upload a file, try to get 'MyFile' as the paest id"
+        return
+        ;;
+    p)  paest_p=$OPTARG
+        ;;
+    k)  paest_k=$OPTARG
+        ;;
+    u)  paest_p=$PAEST_P;
+        paest_k=$PAEST_K;
+        ;;
+    esac
+  done
+  shift $(( $OPTIND - 1 ))
+
+  # Try to get a file
+  FILE=$1
+  if [ $FILE ]
+  then
+  shift
+  fi
+
+  # We should be out of args now.
+  if [ $@ ]
+  then
+    echo "Error: Unused arguments: $@"
+    exit 1
+  fi
+
+  # Perform the paest
+  url="http://a.pae.st/$paest_p/$paest_k"
+  if [ $FILE ]
+  then
+    out=$(curl -s -F "-d=@$FILE" $url | grep "CLI-PRIVATE" | cut -d# -f1)
+  else
+    out=$(curl -s -F '-d=<-' $url | grep "CLI-PRIVATE" | cut -d# -f1)
+  fi
+
+  # Handle response data
+  export PAEST_P=$(echo $out | cut -d/ -f4)
+  export PAEST_K=$(echo $out | cut -d/ -f5)
+  echo "Id: $PAEST_P"
+  echo "Key: $PAEST_K"
+}
