@@ -12,5 +12,5 @@ Done.
 Alterantively:
 
 ```bash
-curl a.pae.st/install >> ~/.whateverrc
+curl https://raw.githubusercontent.com/paest/paest-cli/master/paest >> ~/.whateverrc
 ```
