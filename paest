@@ -27,34 +27,34 @@ function paest() {
         ;;
     esac
   done
-  shift $(( $OPTIND - 1 ))
+  shift $(( OPTIND - 1 ))
 
   # Try to get a file
   FILE=$1
-  if [ $FILE ]
+  if [ "$FILE" ]
   then
   shift
   fi
 
   # We should be out of args now.
-  if [ $@ ]
+  if [ "$@" ]
   then
-    echo "Error: Unused arguments: $@"
+    echo "Error: Unused arguments: $*"
     exit 1
   fi
 
   # Perform the paest
   url="http://a.pae.st/$paest_p/$paest_k"
-  if [ $FILE ]
+  if [ "$FILE" ]
   then
-    out=$(curl -s -F "-d=@$FILE" $url | grep "CLI-PRIVATE" | cut -d# -f1)
+    out=$(curl -s -F "-d=@$FILE" "$url" | grep "CLI-PRIVATE" | cut -d# -f1)
   else
-    out=$(curl -s -F '-d=<-' $url | grep "CLI-PRIVATE" | cut -d# -f1)
+    out=$(curl -s -F '-d=<-' "$url" | grep "CLI-PRIVATE" | cut -d# -f1)
   fi
 
   # Handle response data
-  export PAEST_P=$(echo $out | cut -d/ -f4)
-  export PAEST_K=$(echo $out | cut -d/ -f5)
+  export PAEST_P=$(echo "$out" | cut -d/ -f4)
+  export PAEST_K=$(echo "$out" | cut -d/ -f5)
   echo "Id: $PAEST_P"
   echo "Key: $PAEST_K"
 }
